@@ -1,0 +1,26 @@
+reset ;
+model modelo_kocatepe.mod;
+data instancia_v3.1_I100_J30_K5_N20_s999.dat ;
+
+option solver "./gurobi";
+option DisplayInterval 1;
+option gurobi_options 'outlev 1 logfreq 1 timing 1 threads=4 timelim 3600';
+option presolve 10;
+param TIEMPO_CPU;
+let TIEMPO_CPU:=0;
+
+solve;
+#let TIEMPO_DESPLAZAMIENTO:= sum{i in N, j in N, p in P, v in V, k in K: (i,j) in A and p!=0} X[i,j,p,v,k]*T[i,j,p];
+#display TIEMPO_DESPLAZAMIENTO;
+#for{k in K}{
+#        display t[O,1,k];
+#};
+let TIEMPO_CPU:= _solve_user_time;
+
+display X;
+display Y;
+display FO;
+
+printf "%2d %2d\n", FO, TIEMPO_CPU;
+
+	
