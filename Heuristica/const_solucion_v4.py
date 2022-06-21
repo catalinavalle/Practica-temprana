@@ -79,11 +79,18 @@ class Solucion ():
         sol = self.solucion
         for shelter in sol:
             bloques = sol.get(shelter)
-            print("\n" + str(shelter) + ": ")
+            print("\n" + str(shelter.getName()) + ": ")
             for bloque in bloques:
                 print("- " + bloque.getName())
 
         return
+
+    def noAsignados (self):
+        shelters = self.Shelters
+        asignados = self.sheltersAsignados
+        s = set(shelters)
+        a = set(asignados)
+        return list(s - a)
 
 
 def calcularCapacidadUtilizada (bloquesList):  # Recibe una lista de bloques y calcula la demanda total de estos
@@ -97,80 +104,97 @@ def calcularCapacidadUtilizada (bloquesList):  # Recibe una lista de bloques y c
     return suma    
 
 def crearSolucionAleatoria ():
+
     bloques_temp = I # Lista temporal de bloques
+    
     sheltersAsignados = []
-    solucion = {}   # diccionario {refugio:[bloques]}
+    solved = {}   # diccionario {refugio:[bloques]}
 
     for j in J:
-        solucion.setdefault(j, [])        # agregamos todos los Shelters al diccionario, cada uno relacionado a una lista vacia que luego serán los bloques asignados al respectivo shelter
+        solved.setdefault(j, [])        # agregamos todos los Shelters al diccionario, cada uno relacionado a una lista vacia que luego serán los bloques asignados al respectivo shelter
 
-    while ((len(sheltersAsignados) < n) and ((len(bloques_temp) != 0))):     # Mientras la cantidad de refugios asignados es menor a la cantidad de refugios a utilizar
-        randRefugio = rd.randrange(0, len(J)-1)     # se obtiene un numero al azar entre 0 y la cantidad refugios en la lista de refugios
-        refugio = J[randRefugio]                    # el refugio a utilizar será el que tome la posicion del numero obtenido anteriormente
+    i = 0
 
-        bloque = bloques_temp[-1]                    # el bloque a utilizar será el que tome la posicion i de la lista temporal de bloques
+    while (((len(bloques_temp) != 0))):     # Mientras la cantidad de refugios asignados es menor a la cantidad de refugios a utilizar
         
-        cap_temp = calcularCapacidadUtilizada(solucion.get(refugio)) + bloque.getDemand()
+        bloque = rd.choice(bloques_temp)                    # el bloque a utilizar será el que tome la posicion i de la lista temporal de bloques
+        agregado = False  
+         
+        print("it " + str(i))
+        i = i + 1
+
+        refugio = rd.choice(J)                    # el refugio a utilizar será el que tome la posicion del numero obtenido anteriormente
         
-        if (cap_temp <= refugio.getCapacity()): # mientras la capacidad utilizada sea menor o igual a la capacidad del shelter
-   
-            if (len(solucion.get(refugio)) == 0):         # Si no hay bloques asignados al refugio, este es agregado a la lista de refugios asignados                 
-                sheltersAsignados.append(refugio)
-                cap_temp = 0
-
-            if (mostrar_procedimiento != 0): print ("Revisando shelter " + str(refugio.getName()) + " y " + str(bloque.getName()))
-   
+        if (len(solved.get(refugio)) == 0):         # Si no hay bloques asignados al refugio, este es agregado a la lista de refugios asignados                 
             
-            solucion[refugio].append(bloque)  # agregamos el bloque a la lista asociada al shelter en el dicionario solucion
+            sheltersAsignados.append(refugio)
+            solved[refugio].append(bloque)     
+            bloques_temp.remove(bloque)  
+            agregado = True
+       
+        else:
             
-            bloques_temp.remove(bloque)                 # y eliminamos el bloque de la lista temporal de bloques
+            for shelter in J:
+                
+                cap_temp = calcularCapacidadUtilizada(solved.get(shelter)) + bloque.getDemand()
 
+                if (cap_temp <= shelter.getCapacity() and agregado == False):  
+
+                    solved[shelter].append(bloque)  # agregamos el bloque a la lista asociada al shelter en el dicionario solucion
+                    
+                    agregado = True
+                    bloques_temp.remove(bloque)                 # y eliminamos el bloque de la lista temporal de bloques
             
+            if (agregado == False):
+                print("Entra")
 
-    return solucion, sheltersAsignados
+                s = set(J)
+                a = set(sheltersAsignados)
 
+                noAsignados = list(s-a)
+                print(noAsignados)
+                
+                for ref in noAsignados:
+                    
+                    if (ref.getCapacity() > bloque.getDemand() and agregado == False):
+                        
+                        solved[ref].append(bloque)
+                        bloques_temp.remove(bloque) 
+                        agregado = True
 
-def solution_main_print (I, J, n, d) :
+            else:
+                return False   
 
-    solucion = Solucion(I, J, 4, d, 0, 0, [])
-    print ("Objeto solucion creado... ")
-
-    print ("Obteniendo solucion factible... ")
-    sol, sheltersAsignados = crearSolucionAleatoria()
-    print ("Ya tenemos una solucion factible...")
-
-    solucion.setSolucion (sol)   
+    solucion.setSolucion (solved)   
     solucion.setSheltersAsignados (sheltersAsignados)
-    dist = solucion.calcularDistanciaTotal()     # se calcula la distacia recorrida en esa solucion
-    solucion.setTotalDistance(dist)
+    dist = solucion.calcularDistanciaTotal()    
+    solucion.setTotalDistance(dist)    
 
-    return solucion
-
-
-def solution_main (I, J, n, d) :
-    solucion = Solucion(I, J, 4, d, 0, 0, [])
-
-    sol, sheltersAsignados = crearSolucionAleatoria()
-    solucion.setSolucion (sol)   
-    solucion.setSheltersAsignados (sheltersAsignados)
-    dist = solucion.calcularDistanciaTotal()     # se calcula la distacia recorrida en esa solucion
-    solucion.setTotalDistance(dist)
-
-    return solucion
+    return True
 
 
-def const_solucion_main (mostrar, i, j, N, D):
-    global mostrar_procedimiento, I, J, n, d
+def main ():
 
-    mostrar_procedimiento = mostrar
+    if (crearSolucionAleatoria() == False):
+        main ()
+
+    else:
+        return
+
+
+
+def const_solucion_main (i, j, N, D):
+    global I, J, n, d, solucion
+
     I = i
     J = j
     n = N
     d = D
 
-    if (mostrar_procedimiento == 0):   
-        solucion = solution_main (I, J, n, d)
-    else:
-        solucion = solution_main_print (I, J, n, d)
+    solucion = Solucion(I, J, n, d, 0, 0, [])
+
+    main()
+
 
     return solucion
+

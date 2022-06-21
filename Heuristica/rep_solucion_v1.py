@@ -8,7 +8,6 @@ import sys
 
 
 instancia = str(sys.argv[1])
-mostrar_procedimiento = int ((sys.argv[2]))
 
 I, J, d, n = main(instancia)
 
@@ -21,7 +20,7 @@ def obtenerVecinos(solution):
     cantidad_vecinos = len(sheltersAsignados)
 
     for i in range(cantidad_vecinos):                       # creamos los vecinos
-        new_vecino = const_solucion_main(0, I, J, n, d)
+        new_vecino = const_solucion_main(I, J, n, d)
         lista_vecinos.append(new_vecino)
 
     temp_solution_solved = solution.getSolucion()
@@ -85,7 +84,11 @@ def obtenerVecinos(solution):
         lista_vecinos[i].setTotalDistance (distancia_total_vecino)
         lista_vecinos[i].setSheltersAsignados (sheltersAsignados)
 
-        print("V" + str(i) + "   dist: " + str(lista_vecinos[i].getTotalDistance()))
+        print("\n\nV"+str(i))
+
+        lista_vecinos[i].mostrar_solucion()
+
+        #print("V" + str(i) + "   dist: " + str(lista_vecinos[i].getTotalDistance()))
 
 
     return lista_vecinos
@@ -119,7 +122,7 @@ def hill_climbing (solucion_inicial, t_max):
                 distancia_vecino = vecino.getTotalDistance()
                 distancia_local = local_solution.getTotalDistance()
 
-                print("DV: " + str(distancia_vecino) + "  DL: " + str(distancia_local))     # SE MUENTRAN LA DITACIA DEL VECINO A REVISAR Y LA DISTANCIA LOCAL ACTUAL
+                #print("DV: " + str(distancia_vecino) + "  DL: " + str(distancia_local))     # SE MUENTRAN LA DITACIA DEL VECINO A REVISAR Y LA DISTANCIA LOCAL ACTUAL
 
                 if (distancia_vecino < distancia_local):
                     local_solution = vecino
@@ -138,14 +141,16 @@ def hill_climbing (solucion_inicial, t_max):
 
 
 def rep_solucion_main ():
-    solucion_inicial = const_solucion_main(0, I, J, n, d)
+    solucion_inicial = const_solucion_main(I, J, n, d)
 
-    print("Distancia solucion inicial: " + str(solucion_inicial.getTotalDistance()))
+    #print("Distancia solucion inicial: " + str(solucion_inicial.getTotalDistance())+"\n")
 
-    mejor_solucion = hill_climbing(solucion_inicial, 1)
-    mejor_distancia = mejor_solucion.getTotalDistance()
+    solucion_inicial.mostrar_solucion()
 
-    print("\n\nMejor distancia: " + str(mejor_distancia))
+    #mejor_solucion = hill_climbing(solucion_inicial, 1)
+    #mejor_distancia = mejor_solucion.getTotalDistance()
+
+    #print("\n\nMejor distancia: " + str(mejor_distancia))
 
 
 
