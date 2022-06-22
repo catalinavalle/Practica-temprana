@@ -105,13 +105,15 @@ def calcularCapacidadUtilizada (bloquesList):  # Recibe una lista de bloques y c
 
 def crearSolucionAleatoria ():
 
-    bloques_temp = I # Lista temporal de bloques
+    bloques_temp = list(I) # Lista temporal de bloques
+    refugios_temp = list(J)
     
     sheltersAsignados = []
     solved = {}   # diccionario {refugio:[bloques]}
 
     for j in J:
         solved.setdefault(j, [])        # agregamos todos los Shelters al diccionario, cada uno relacionado a una lista vacia que luego serán los bloques asignados al respectivo shelter
+
 
     i = 0
 
@@ -120,12 +122,15 @@ def crearSolucionAleatoria ():
         bloque = rd.choice(bloques_temp)                    # el bloque a utilizar será el que tome la posicion i de la lista temporal de bloques
         agregado = False  
          
-        print("it " + str(i))
-        i = i + 1
+        #print("\nit " + str(i))
+        #i = i + 1
 
-        refugio = rd.choice(J)                    # el refugio a utilizar será el que tome la posicion del numero obtenido anteriormente
+        refugio = rd.choice(refugios_temp)                    # el refugio a utilizar será el que tome la posicion del numero obtenido anteriormente
         
-        if (len(solved.get(refugio)) == 0):         # Si no hay bloques asignados al refugio, este es agregado a la lista de refugios asignados                 
+        #print("Refugio: " + refugio.getName() + "  Zona: " + bloque.getName())
+
+
+        if (len(solved.get(refugio)) == 0 and len(sheltersAsignados) < n):         # Si no hay bloques asignados al refugio, este es agregado a la lista de refugios asignados                 
             
             sheltersAsignados.append(refugio)
             solved[refugio].append(bloque)     
@@ -134,36 +139,38 @@ def crearSolucionAleatoria ():
        
         else:
             
-            for shelter in J:
+            for shelter in sheltersAsignados:
                 
                 cap_temp = calcularCapacidadUtilizada(solved.get(shelter)) + bloque.getDemand()
 
                 if (cap_temp <= shelter.getCapacity() and agregado == False):  
 
                     solved[shelter].append(bloque)  # agregamos el bloque a la lista asociada al shelter en el dicionario solucion
-                    
                     agregado = True
                     bloques_temp.remove(bloque)                 # y eliminamos el bloque de la lista temporal de bloques
             
-            if (agregado == False):
-                print("Entra")
-
+            if (agregado == False and len(sheltersAsignados) < n):
+                
                 s = set(J)
                 a = set(sheltersAsignados)
 
                 noAsignados = list(s-a)
-                print(noAsignados)
                 
                 for ref in noAsignados:
                     
-                    if (ref.getCapacity() > bloque.getDemand() and agregado == False):
+                    if (ref.getCapacity() >= bloque.getDemand() and agregado == False):
                         
                         solved[ref].append(bloque)
+                        sheltersAsignados.append(ref)
                         bloques_temp.remove(bloque) 
                         agregado = True
+            
+            elif (agregado == False and len(sheltersAsignados) == n):
+                return False
+            
 
-            else:
-                return False   
+        solucion.setSolucion(solved)
+        #solucion.mostrar_solucion()
 
     solucion.setSolucion (solved)   
     solucion.setSheltersAsignados (sheltersAsignados)
@@ -177,6 +184,7 @@ def main ():
 
     if (crearSolucionAleatoria() == False):
         main ()
+        return
 
     else:
         return
@@ -194,7 +202,6 @@ def const_solucion_main (i, j, N, D):
     solucion = Solucion(I, J, n, d, 0, 0, [])
 
     main()
-
 
     return solucion
 
