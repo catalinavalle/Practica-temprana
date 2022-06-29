@@ -182,9 +182,10 @@ def crearSolucionAleatoria ():
 
 def main ():
 
-    if (crearSolucionAleatoria() == False):
-        main ()
-        return
+    flag = False
+
+    while (flag == False):
+        flag = crearSolucionAleatoria()
 
     else:
         return
