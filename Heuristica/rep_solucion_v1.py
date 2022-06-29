@@ -1,3 +1,5 @@
+# HAY QUE EJECUTAR VARIAS VECES YA QUE EN INSTANCIAS APRETADAS SE ALCANZA LA RECURSIVIAD MAXIMA PERMITIDA.
+
 from lector_v1 import main
 from const_solucion_v4 import const_solucion_main
 from const_solucion_v4 import calcularCapacidadUtilizada
@@ -8,30 +10,19 @@ import sys
 
 
 instancia = str(sys.argv[1])
+#s = int(sys.argv[2])
+#rd.seed(s)
 
 I, J, d, n = main(instancia)
 
 
-def obtenerVecinos(solution):
-
-    lista_vecinos = []
-
-    sheltersAsignados = solution.getSheltersAsignados()
-    cantidad_vecinos = len(sheltersAsignados)
-
-    for i in range(cantidad_vecinos):                       # creamos los vecinos
-        new_vecino = const_solucion_main(I, J, n, d)
-        lista_vecinos.append(new_vecino)
-
-    temp_solution_solved = solution.getSolucion()
-    temp_sheltersAsignados = sheltersAsignados
+def obtenerLejanos (asignados, solved):
 
     bloques_lejanos = []
+    temp = solved.copy()
 
-    # OBTENEMOS LOS BLOQUES MÁS LEJANOS DE CADA REFUGIO EN UNA LISTA Y LOS ELIMINAMOS DEL REFUGIO AL QUE FUE ASIGNADO
-
-    for shelter in temp_sheltersAsignados:              # se revisan todos los shelters asignados
-        bloques = temp_solution_solved.get(shelter)     # se obtiene la lista de bloques asignados en el shelter   
+    for shelter in asignados:              # se revisan todos los shelters asignados
+        bloques = temp.get(shelter)     # se obtiene la lista de bloques asignados en el shelter   
         bloque_lejano_distance = 0
 
         for bloque in bloques:          # Se busca el bloque mas lejano al shelter
@@ -41,55 +32,110 @@ def obtenerVecinos(solution):
                 bloque_lejano_distance = current_dist
                 bloque_mas_lejano = bloque
         
-        temp_solution_solved.get(shelter).remove(bloque_mas_lejano)     # elimina el bloque del shelter
-        bloques_lejanos.append(bloque_mas_lejano)                       # agrega el bloque a la lista de lejanos
+        temp.get(shelter).remove(bloque_mas_lejano)     # elimina el bloque del shelter
+        bloques_lejanos.append(bloque_mas_lejano)         # agrega el bloque a la lista de lejanos
+    
+    return bloques_lejanos, temp
 
+
+def reordenar_lista(lista):
+    temp_lista = list(lista)
+    lista_reordenada = []
+    for i in range(len(temp_lista)):
+        element = rd.choice(temp_lista)
+        lista_reordenada.append(element)
+        temp_lista.remove(element)
+    return(lista_reordenada)
+
+
+def asignar_shelter (lejanos, asignados, solved):
+
+    for refugio in asignados:
+
+        for bloque in lejanos:
+
+            capacidad_temp = calcularCapacidadUtilizada(solved.get(refugio)) + bloque.getDemand()   # checamos la capacidad utilizada en el refugio
+            capacidad_refugio = refugio.getCapacity()                                               # checamos la capacidad del refugio
+
+            if( capacidad_temp <= capacidad_refugio):  # si entra, lo agregamos
+
+                solved[refugio].append(bloque)
+                lejanos.remove(bloque)                     # se elimina el bloque de la lista de lejanos
+
+    if (len(lejanos) == 0):
+        return solved
+    else:
+        return False
+
+
+def reasignar_recursive (bloques_lejanos, sheltersAsignados, temp_solved):
+
+    solved = asignar_shelter (bloques_lejanos, sheltersAsignados, temp_solved)
+
+    if (solved == False):
+        reasignar_recursive(bloques_lejanos, sheltersAsignados, temp_solved)
+        return
+    else:
+        return solved
+
+
+
+def obtenerVecinos(solution):
+
+    lista_vecinos = list([])
+
+    sheltersAsignados = list(solution.getSheltersAsignados())
+    cantidad_vecinos = len(sheltersAsignados) 
+
+    temp_solution_solved = solution.getSolucion().copy()
+
+    temp_solved = {}
+
+    # OBTENEMOS LOS BLOQUES MÁS LEJANOS DE CADA REFUGIO EN UNA LISTA Y LOS ELIMINAMOS DEL REFUGIO AL QUE FUE ASIGNADO
+
+    bloques_lejanos, temp_solved = obtenerLejanos(sheltersAsignados, temp_solution_solved)
+
+    """
+     for shelter in temp_solved:
+        bloques = temp_solved.get(shelter)
+        print("\n" + str(shelter.getName()) + ": ")
+        for bloque in bloques:
+            print("- " + bloque.getName())   
+    """
 
     # REPETIMOS SEGÚN LA CANTIDAD DE VECINOS NECESARIOS
     
-    for i in range(len(sheltersAsignados)):
-
-        temp_solution_solved = solution.getSolucion()
-        temp_sheltersAsignados = solution.getSheltersAsignados()
-        temp_lejanos = bloques_lejanos
-
-        j = 0
-
+    for i in range(cantidad_vecinos):
+        
         # REASIGNAMOS LOS BLOQUES MAS LEJANOS A LOS SHELTERS ASIGNADOS DE FORMA ALEATORIA PARA OBTENER SOLUCIONES VECINAS
 
-        while (j < len(sheltersAsignados)):
+        asignados = list(reordenar_lista(sheltersAsignados))
 
-            randRef = rd.randrange(0, len(temp_sheltersAsignados))      #seleccionamos un shelter aleatorio
-            refugio = temp_sheltersAsignados[randRef] 
+        print("Vecino " + str(i))
 
-            randBloque = rd.randrange(0, len(temp_lejanos))             #seleccionamos un  bloque aleatorio en la lista de bloques lejanos
-            bloque = temp_lejanos[randBloque] 
+        # PROBLEMA: EL DICCIONARIO CAMBIA, A PESAR DE USAR UN COPY.
+        # En la primera iteración se utiliza bien la solucion temporal copiada (la que se le quitaron los puntos más lejanos de cada shelter)
+        # En las siguientes iteraciones se utiliza la solución temporal modificada (resultado de la iteración anterior)
+        # Cada iteración debe comenzar con la solucion sin los bloques lejanos ya que estos son reasignados
 
-            capacidad_utilizada = calcularCapacidadUtilizada(temp_solution_solved.get(refugio))     # checamos la capacidad utilizada en el refugio
-            capacidad_refugio = refugio.getCapacity()                                               # checamos la capacidad del refugio
+        temp = temp_solved.copy()
 
-            if( capacidad_utilizada <= capacidad_refugio):  # si entra, lo agregamos
+        print("\nMostrarndo copia solucion")
+        for shelter in temp:
+            bloques = temp.get(shelter)
+            print("\n" + str(shelter.getName()) + ": ")
+            for bloque in bloques:
+                print("- " + bloque.getName())
 
-                temp_solution_solved[refugio].append(bloque)
-                temp_lejanos.remove(bloque)                     # se elimina el bloque de la lista de lejanos
-                temp_sheltersAsignados.remove(refugio)          # se elimina el refugio de la lista de refugios asignados
+        solved = reasignar_recursive(bloques_lejanos, asignados, temp).copy()
 
-                j = j + 1
+        # SETEAMOS LOS DATOS DEL NUEVO VECINO Y LO AGREGAMOS A LA LISTA DE VECINOS
 
-
-        # SETEAMOS LOS DATOS DEL VECINO IESIMO DE LA LISTA DE VECINOS
-
-        lista_vecinos[i].setSolucion(temp_solution_solved)
-        distancia_total_vecino = lista_vecinos[i].calcularDistanciaTotal()
-        lista_vecinos[i].setTotalDistance (distancia_total_vecino)
-        lista_vecinos[i].setSheltersAsignados (sheltersAsignados)
-
-        print("\n\nV"+str(i))
-
-        lista_vecinos[i].mostrar_solucion()
-
-        #print("V" + str(i) + "   dist: " + str(lista_vecinos[i].getTotalDistance()))
-
+        new_vecino = solution
+        new_vecino.setSolucion(solved)
+        distancia_total_vecino = new_vecino.calcularDistanciaTotal()
+        new_vecino.setTotalDistance (distancia_total_vecino)
+        lista_vecinos.append(new_vecino)
 
     return lista_vecinos
 
@@ -100,29 +146,24 @@ def hill_climbing (solucion_inicial, t_max):
     t = 0
 
     best_solution = solucion_inicial
+    local_solution = solucion_inicial
 
     while ( t < t_max):
 
         print ("\nIteracion: " + str(t))
 
-        Local = False
-        local_solution = const_solucion_main(0, I, J, n, d)
+        Local = False       
 
         while ( Local == False ):
 
             vecinos = obtenerVecinos(local_solution)
 
-            #i = 0
-
             for vecino in vecinos:
-
-                #print("it" + str(t) + " - V" + str(i) + "   dist: " + str(vecino.getTotalDistance()))
-                #i = i + 1
 
                 distancia_vecino = vecino.getTotalDistance()
                 distancia_local = local_solution.getTotalDistance()
 
-                #print("DV: " + str(distancia_vecino) + "  DL: " + str(distancia_local))     # SE MUENTRAN LA DITACIA DEL VECINO A REVISAR Y LA DISTANCIA LOCAL ACTUAL
+                print("DV: " + str(distancia_vecino) + "  DL: " + str(distancia_local))     # SE MUENTRAN LA DITACIA DEL VECINO A REVISAR Y LA DISTANCIA LOCAL ACTUAL
 
                 if (distancia_vecino < distancia_local):
                     local_solution = vecino
@@ -141,11 +182,27 @@ def hill_climbing (solucion_inicial, t_max):
 
 
 def rep_solucion_main ():
+
     solucion_inicial = const_solucion_main(I, J, n, d)
+
+    print("Inicial")
+
+    solucion_inicial.mostrar_solucion()
+
+    print("----------------------------------------------------------------")
 
     #print("Distancia solucion inicial: " + str(solucion_inicial.getTotalDistance())+"\n")
 
-    solucion_inicial.mostrar_solucion()
+    vecinos = obtenerVecinos(solucion_inicial)
+
+    i = 0
+    for vecino in vecinos:
+        print("----------------------------------------------------------------")
+        print("\n\nV"+str(i))
+        vecino.mostrar_solucion()
+        i = i + 1
+
+    #solucion_inicial.mostrar_solucion()
 
     #mejor_solucion = hill_climbing(solucion_inicial, 1)
     #mejor_distancia = mejor_solucion.getTotalDistance()
