@@ -1,26 +1,25 @@
-# HAY QUE EJECUTAR VARIAS VECES YA QUE EN INSTANCIAS APRETADAS SE ALCANZA LA RECURSIVIAD MAXIMA PERMITIDA.
+# ESTE ES EL QUE VALE, EL V3 SE UTILIZÓ PARA PROBAR OTRO METODO DE OBTENCON DE DISTANCIAS
 
-from lector_v1 import main
-from const_solucion_v4 import const_solucion_main
-from const_solucion_v4 import calcularCapacidadUtilizada
-from const_solucion_v4 import Solucion
+from lector_v1 import reader_main
+from const_solucion_v5 import const_solucion_main
+from const_solucion_v5 import calcularCapacidadUtilizada
+from const_solucion_v5 import Solucion
 
 import random as rd
 import sys
-import copy
 
 
 instancia = str(sys.argv[1])
 s = int(sys.argv[2])
 rd.seed(s)
 
-I, J, d, n = main(instancia)
+I, J, d, n = reader_main(instancia)
 
 
 def obtenerLejanos (asignados, solved):
 
     bloques_lejanos = []
-    temp = solved.copy()
+    temp = copy_dict(solved)
 
     for shelter in asignados:              # se revisan todos los shelters asignados
         bloques = temp.get(shelter)     # se obtiene la lista de bloques asignados en el shelter   
@@ -76,11 +75,8 @@ def reasignar (lejanos, asignados, solved):
 def reasignar_ciclo (bloques_lejanos, sheltersAsignados, temp_solved):
 
     solved = False
-    i = 0
 
     while (solved == False):
-
-        i = i + 1
         solved = reasignar (bloques_lejanos, sheltersAsignados, temp_solved)     
 
     return solved
@@ -123,15 +119,15 @@ def obtenerVecinos(solution):
 
         # SETEAMOS LOS DATOS DEL NUEVO VECINO Y LO AGREGAMOS A LA LISTA DE VECINOS
 
-        new_vecino = solution
+        distanciaTotal = 0
+        
+        for shelter in solved:
+            bloques = solved.get(shelter)
+            for bloque in bloques:
+                dist = d.get((bloque.getName(), shelter.getName()))
+                distanciaTotal = distanciaTotal + dist
 
-        new_vecino.setSolucion(solved)
-
-        distancia_total_vecino = new_vecino.calcularDistanciaTotal()
-
-        new_vecino.setTotalDistance (distancia_total_vecino)
-
-        print("Distancia seteada = " + str(new_vecino.getTotalDistance()))
+        new_vecino =  Solucion(I, J, n, d, solved, distanciaTotal, sheltersAsignados)
 
         lista_vecinos.append(new_vecino)
 
@@ -148,7 +144,7 @@ def hill_climbing (solucion_inicial, t_max):
 
     while ( t < t_max):
 
-        print ("\nIteracion: " + str(t))
+        #print ("\nIteracion: " + str(t))
 
         Local = False       
 
@@ -161,17 +157,18 @@ def hill_climbing (solucion_inicial, t_max):
                 distancia_vecino = vecino.getTotalDistance()
                 distancia_local = local_solution.getTotalDistance()
 
-                print("DV: " + str(distancia_vecino) + "  DL: " + str(distancia_local))     # SE MUENTRAN LA DITACIA DEL VECINO A REVISAR Y LA DISTANCIA LOCAL ACTUAL
+                #print("DV: " + str(distancia_vecino) + "  DL: " + str(distancia_local))     # SE MUENTRAN LA DITACIA DEL VECINO A REVISAR Y LA DISTANCIA LOCAL ACTUAL
 
                 if (distancia_vecino < distancia_local):
                     local_solution = vecino
                 else:
                     Local = True
         
-        print ("\nMejor distancia local: " + str(local_solution.getTotalDistance()))
+        #print ("\nMejor distancia local: " + str(local_solution.getTotalDistance()))
 
         if (local_solution.getTotalDistance() < best_solution.getTotalDistance()):
             best_solution = local_solution
+            #print("\n Nuevo best: " + str(best_solution.getTotalDistance()))
         else: best_solution = best_solution
         
         t = t + 1
@@ -183,39 +180,11 @@ def rep_solucion_main ():
 
     solucion_inicial = const_solucion_main(I, J, n, d)
 
-    print("Inicial")
+    print("\nDistancia solucion inicial: " + str(solucion_inicial.getTotalDistance()))
 
-    #solucion_inicial.mostrar_solucion()
-
-    print("\nDistancia solucion inicial: " + str(solucion_inicial.getTotalDistance())+"\n")
-
-    print("----------------------------------------------------------------")
-  
-    print("\nAntes de agregar a la lista vecinos:\n")
-    vecinos = obtenerVecinos(solucion_inicial)
-
-    print("----------------------------------------------------------------")
-
-    print("\n\nDespues de agregar a la lista vecinos\n")
-
-    i = 0
-
-    while(i < len(vecinos)):
-        #print("----------------------------------------------------------------")
-        print("V" + str(i) + "  -  Dist: " + str(vecinos[i].getTotalDistance()))
-        #vecinos[i].mostrar_solucion()
-        i = i + 1
-
-    """
-    #solucion_inicial.mostrar_solucion()
-
-    mejor_solucion = hill_climbing(solucion_inicial, 1)
+    mejor_solucion = hill_climbing(solucion_inicial, 100)
     mejor_distancia = mejor_solucion.getTotalDistance()
 
-    print("\n\nMejor distancia: " + str(mejor_distancia))
-
-    """
-
-
+    print("\Mejor distancia: " + str(mejor_distancia))
 
 rep_solucion_main()

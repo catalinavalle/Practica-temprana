@@ -59,6 +59,11 @@ class Solucion ():
         self.totalDistance = totalDist
         return 
 
+    def set_Solucion_Dist (self, sol, totalDist):
+        self.solucion = sol
+        self.totalDistance = totalDist
+        return 
+
     def setSheltersAsignados (self, SheltersAsignados):
         self.sheltersAsignados = SheltersAsignados
         return
@@ -73,7 +78,7 @@ class Solucion ():
                 dist = d.get((bloque.getName(), shelter.getName()))
                 distanciaTotal = distanciaTotal + dist
 
-        return distanciaTotal*2         # se multiplica por dos porque es ida y vuelta
+        return distanciaTotal
 
     def mostrar_solucion (self):
         sol = self.solucion
@@ -187,8 +192,7 @@ def main ():
     while (flag == False):
         flag = crearSolucionAleatoria()
 
-    else:
-        return
+    return
 
 
 

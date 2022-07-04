@@ -230,7 +230,7 @@ def obtenerCoordenadas():
     return
 
 
-def main (instancia):
+def reader_main (instancia):
 
     global lineas, f, linea
 
