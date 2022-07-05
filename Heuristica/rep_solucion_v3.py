@@ -1,4 +1,4 @@
-# V2: reasignacion de bloques lejanos
+# V3: reasignacion de bloques aleatorios
 
 from lector_v1 import reader_main
 from const_solucion_v5 import const_solucion_main
@@ -12,30 +12,24 @@ import sys
 instancia = str(sys.argv[1])
 s = int(sys.argv[2])
 rd.seed(s)
+iteraciones = int(sys.argv[3])
 
 I, J, d, n = reader_main(instancia)
 
 
-def obtenerLejanos (asignados, solved):
+def eliminarBloquesAleatoriaos (asignados, solved):
 
-    bloques_lejanos = []
+    bloques_eliminados = []
     temp = copy_dict(solved)
 
     for shelter in asignados:              # se revisan todos los shelters asignados
         bloques = temp.get(shelter)     # se obtiene la lista de bloques asignados en el shelter   
-        bloque_lejano_distance = 0
-
-        for bloque in bloques:          # Se busca el bloque mas lejano al shelter
-            current_dist = d.get((bloque.getName(), shelter.getName()))
-
-            if (current_dist > bloque_lejano_distance):
-                bloque_lejano_distance = current_dist
-                bloque_mas_lejano = bloque
+        bloque_eliminar = rd.choice(bloques)
         
-        temp.get(shelter).remove(bloque_mas_lejano)     # elimina el bloque del shelter
-        bloques_lejanos.append(bloque_mas_lejano)         # agrega el bloque a la lista de lejanos
+        temp.get(shelter).remove(bloque_eliminar)     # elimina el bloque del shelter
+        bloques_eliminados.append(bloque_eliminar)         # agrega el bloque a la lista de lejanos
     
-    return bloques_lejanos, temp
+    return bloques_eliminados, temp
 
 
 def reordenar_lista(lista):
@@ -109,7 +103,7 @@ def obtenerVecinos(solution):
 
     # OBTENEMOS LOS BLOQUES MÁS LEJANOS DE CADA REFUGIO EN UNA LISTA Y LOS ELIMINAMOS DEL REFUGIO AL QUE FUE ASIGNADO
 
-    bloques_lejanos, temp_solved = obtenerLejanos(sheltersAsignados, temp_solution_solved)
+    bloques_lejanos, temp_solved = eliminarBloquesAleatoriaos(sheltersAsignados, temp_solution_solved)
 
     # REPETIMOS SEGÚN LA CANTIDAD DE VECINOS NECESARIOS
 
@@ -180,11 +174,11 @@ def rep_solucion_main ():
 
     solucion_inicial = const_solucion_main(I, J, n, d)
 
-    print("\nDistancia solucion inicial: " + str(solucion_inicial.getTotalDistance()))
+    print("Distancia solucion inicial: " + str(solucion_inicial.getTotalDistance()))
 
-    mejor_solucion = hill_climbing(solucion_inicial, 100)
+    mejor_solucion = hill_climbing(solucion_inicial, iteraciones)
     mejor_distancia = mejor_solucion.getTotalDistance()
-
-    print("\Mejor distancia: " + str(mejor_distancia))
+    print("\nIteraciones: " + str(iteraciones))
+    print("Mejor distancia: " + str(mejor_distancia))
 
 rep_solucion_main()
