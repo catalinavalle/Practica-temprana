@@ -1,17 +1,20 @@
 # Practica
 Archivos utilizados durante la práctica.
 
-Versiones finales:
+## Versiones finales:
 
-  Generador:  generador_v5.3.py         GENERA UNA INSTANCIA
-              generarTodo_v5.3.sh       GENERA MUCHAS INSTANCIAS DE PRUEBA
+### Generador:
+* **generador_v5.3.py**     - Genera una instancia de prueba
+* **generarTodo_v5.3.sh**   - Genera muchas instancias de prueba
               
-  Solver:     modelo_kocatepe.mod       MODELO MATEMATICO UTILIZADO
-              prueba.run                RESUELVE UNA INSTANCIAS DE PRUEBA
-              correrTodo.sh             RESUELVE MUCHAS INSTANCIAS DE PRUEBA
+### Solver:     
+* **modelo_kocatepe.mod**   - Modelo matematico utilizado
+* **prueba.run**            - Resuelve una instancia de prueba
+* **correrTodo.sh**         - Resuelve muchas instancias de prueba
               
-  Heurística: lector_v1.py              LEE UNA INSTANCIA DE PRUEBA
-              const_solucion_v5.py      CONSTRUYE UN A SOLUCIÓN ALEATORIA RESPETANDO LAS RESTRICCIONES DEL MODELO
-              rep_solucion_v2.py        APLICA UNA HEURISTICA QUE CONSISTE EN REASIGNAR LOS BLOQUES MÁS LEJANOS A CADA SHELTER
-              rep_solucion_v3.py        APLICA UNA HEURISTICA QUE CONSISTE EN REASIGNAR LOS BLOQUES ALEATORIOS A CADA SHELTER
-  
+### Heurística:
+* **lector_v1.py**          - Lee una instancia de prueba
+* **const_solucion_v5.py**  - Construye un a solución aleatoria respetando las restricciones del modelo
+* **rep_solucion_v2.py**    - Aplica una heuristica que consiste en reasignar los bloques más lejanos a cada shelter
+* **rep_solucion_v3.py**    - Aplica una heuristica que consiste en reasignar los bloques aleatorios a cada shelter
+
