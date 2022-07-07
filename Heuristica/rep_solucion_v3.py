@@ -7,6 +7,7 @@ from const_solucion_v5 import Solucion
 
 import random as rd
 import sys
+import time
 
 
 instancia = str(sys.argv[1])
@@ -174,11 +175,19 @@ def rep_solucion_main ():
 
     solucion_inicial = const_solucion_main(I, J, n, d)
 
-    print("Distancia solucion inicial: " + str(solucion_inicial.getTotalDistance()))
+    inicio = time.time()
 
     mejor_solucion = hill_climbing(solucion_inicial, iteraciones)
-    mejor_distancia = mejor_solucion.getTotalDistance()
-    print("\nIteraciones: " + str(iteraciones))
-    print("Mejor distancia: " + str(mejor_distancia))
 
+    fin = time.time()
+
+    fo = mejor_solucion.getTotalDistance()
+    tiempo = int(fin - inicio)
+
+    f = open ('resumen_heuristica.txt','a')
+    f.write(str(instancia) + ' ' + str(s) + ' ' + str(iteraciones) + ' ' + str(fo) + ' ' + str(tiempo))
+    f.close()
+
+    return
+    
 rep_solucion_main()

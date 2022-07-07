@@ -68,7 +68,6 @@ class Solucion ():
         return
 
     def calcularDistanciaTotal(self):
-        # solucion = {'S01':[objetos]}
         distanciaTotal = 0
         sol = self.solucion
         for shelter in sol:
@@ -116,7 +115,7 @@ def crearSolucionAleatoria ():
     solved = {}   # diccionario {refugio:[bloques]}
 
     for j in J:
-        solved.setdefault(j, [])        # agregamos todos los Shelters al diccionario, cada uno relacionado a una lista vacia que luego serán los bloques asignados al respectivo shelter
+        solved.setdefault(j, [])        # agregamos todos los Shelters al diccionario, cada uno relacionado a una lista vacia que luego seran los bloques asignados al respectivo shelter
 
 
     i = 0
@@ -125,13 +124,9 @@ def crearSolucionAleatoria ():
         
         bloque = rd.choice(bloques_temp)                    # el bloque a utilizar será el que tome la posicion i de la lista temporal de bloques
         agregado = False  
-         
-        #print("\nit " + str(i))
-        #i = i + 1
 
         refugio = rd.choice(refugios_temp)                    # el refugio a utilizar será el que tome la posicion del numero obtenido anteriormente
         
-        #print("Refugio: " + refugio.getName() + "  Zona: " + bloque.getName())
 
         if (len(solved.get(refugio)) == 0 and len(sheltersAsignados) < n):         # Si no hay bloques asignados al refugio, este es agregado a la lista de refugios asignados                 
             
@@ -173,7 +168,6 @@ def crearSolucionAleatoria ():
             
 
         solucion.setSolucion(solved)
-        #solucion.mostrar_solucion()
 
     solucion.setSolucion (solved)   
     solucion.setSheltersAsignados (sheltersAsignados)
