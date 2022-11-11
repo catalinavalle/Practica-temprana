@@ -1,7 +1,9 @@
-# Práctica
-Archivos utilizados durante la práctica.
+# Resumen
+Realización de trabajo investigativo basado en el ruteo de vehículos (VRP) dada la necesidad de transportar grandes volúmenes de personas con mascotas afectadas en situaciones de desastres naturales. En este caso particular se consideran situaciones de terremoto y posible tsunami. Cada grupo de personas debe ser transportado a un refugio, preferentemente Pet-Friendly. Para ello se implementó un modelo matemático AMPL y optimizado con Gurobi. Se implementó ademas un generador de prueba con un código Python. Dcas instancias fueron ejecutadas en un servidor dedicado. A partir de estos resultados se realiza un análisis de las características de las instancias y sus respectivas dificultades de resolución. A partir del análisis de complejidad de los casos de prueba, se propone una heurística con el objetivo de disminuir los tiempos de respuesta. Esto quedó documentado en un articulo en formato paper, escrito en LaTex. Todos los códigos y archivos utilizados se encuentran disponibles en el presente repositorio.
 
-## Versiones finales:
+
+
+## Versiones finales de los archivos utilizados:
 
 ### Generador:
 * **generador_v5.3.py**     - Genera una instancia de prueba.
